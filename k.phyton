@@ -1,0 +1,43 @@
+from datetime import datetime, timedelta
+import requests
+import matplotlib.pyplot as plt
+
+def fetch_weather_data(lat, lon, start_date, end_date):
+    weather_data = []
+    date = start_date
+    while date <= end_date:
+        response = requests.get(f"http://api.openweathermap.org/data/2.5/weather?lat={lat}&lon={lon}&appid=YOUR_API_KEY&units=metric&dt={int(date.timestamp())}")
+        data = response.json()
+        weather_data.append({
+            "date": date,
+            "temperature": data["main"]["temp"],
+            "humidity": data["main"]["humidity"],
+            "sunrise": datetime.fromtimestamp(data["sys"]["sunrise"]),
+            "sunset": datetime.fromtimestamp(data["sys"]["sunset"])
+        })
+        date += timedelta(days=1)
+    return weather_data
+
+def plot_weather_data(weather_data):
+    dates = [item["date"] for item in weather_data]
+    temperatures = [item["temperature"] for item in weather_data]
+    humidities = [item["humidity"] for item in weather_data]
+
+    plt.figure(figsize=(10, 5))
+    plt.plot(dates, temperatures, label="Temperature")
+    plt.plot(dates, humidities, label="Humidity")
+    plt.xlabel("Date")
+    plt.ylabel("Value")
+    plt.title("Weather Data")
+    plt.legend()
+    plt.show()
+
+if __name__ == "__main__":
+    # Tambahkan koordinat geografis dan tanggal mulai dan akhir di sini
+    latitude = 37.7749
+    longitude = -122.4194
+    start_date = datetime(2022, 1, 1)
+    end_date = datetime(2022, 1, 31)
+
+    weather_data = fetch_weather_data(latitude, longitude, start_date, end_date)
+    plot_weather_data(weather_data)
